@@ -1,6 +1,6 @@
 import sys
 
-INTEGER, PLUS, EOF, MINUS = 'INTEGER', 'PLUS', 'EOF', 'MINUS'
+INTEGER, PLUS, EOF, MINUS, WHITE_SPACE = 'INTEGER', 'PLUS', 'EOF', 'MINUS', "WHITE_SPACE"
 
 QUIT_COMMANDS = ["quit()", "exit()"]
 
@@ -31,7 +31,7 @@ class Interpreter(object):
         raise Exception('Error parsing input')
 
     def get_next_token(self):
-        text = self.text
+        text = self.text.strip()
 
         if self.pos > self.text_len - 1:
             return Token(EOF, None)
@@ -58,6 +58,11 @@ class Interpreter(object):
             token = Token(MINUS, current_char)
             self.pos += 1
             return token
+        
+        if current_char == ' ':
+            token = Token(WHITE_SPACE, current_char)
+            self.pos += 1
+            return token
 
         self.error()
     
@@ -78,6 +83,9 @@ class Interpreter(object):
         current_char = self.text[self.pos]
         if current_char.isdigit():
             return True
+        elif current_char == " ":
+            self.pos += 1
+            return self.eval_next_token()
         return False
 
 
@@ -101,6 +109,8 @@ class Interpreter(object):
 
         while self.eval_next_token():
             self.current_token = self.get_next_token()
+            if self.current_token.value == " ":
+                continue
             left.value = self.append_char(left.value, self.current_token.value)
             # self.pos += 1
             
@@ -111,6 +121,8 @@ class Interpreter(object):
 
         while self.eval_next_token():
             self.current_token = self.get_next_token()
+            if self.current_token.value == " ":
+                continue
             right.value = self.append_char(right.value, self.current_token.value)
             # self.pos += 1
 
